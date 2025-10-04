@@ -101,12 +101,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-stuck:
-      if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)== GPIO_PIN_SET){     //Implementing the final state of the "Mealy-esqe" machine... I am still surprised as to why the machine even stays in this state... 
-		                                                           //common sense tells that the cpu will execute the next line and not stay in this place... eventually encountering the while loop and moving on... 
-		                                                           //but it stays stuck... Interesting behaviour... maybe the cpu is idle while something is running in the background and only wakes up after an interrupt or something...
-		  goto unstuck;
-	  }
 
   /* USER CODE END 2 */
 
@@ -114,12 +108,12 @@ stuck:
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-unstuck:
+
 	  uint32_t now = HAL_GetTick();
 
 	  if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)== GPIO_PIN_SET){
-		  HAL_Delay(200);
-		  Count++;
+unstuck:  HAL_Delay(200);
+          Count++;
 		  Count=Count%8;
 	  }
 	  switch(Count){
@@ -146,6 +140,11 @@ unstuck:
 	  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 	  //HAL_Delay(Delay);
   }
+stuck:
+      if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)== GPIO_PIN_SET){
+  		  goto unstuck;
+  	  }
+  	  goto stuck;
   /* USER CODE END 3 */
 }
 
