@@ -77,7 +77,7 @@ int main(void)
 	uint8_t Count = 0;
 	uint32_t lastToggleMs = 0;
 
-	//GPIO_PinState prev = GPIO_PIN_SET;
+	//GPIO_PinState prev = GPIO_PIN_SET;  // I wanted to implement a debounce logic here using non blocking logic, but it seemed overkill as a simple delay did the job fairly well...
 	//uint32_t lastChangeMs = 0;
 	//const uint32_t debounceMs = 20;
   /* USER CODE END 1 */
@@ -102,7 +102,9 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 stuck:
-      if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)== GPIO_PIN_SET){
+      if(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)== GPIO_PIN_SET){     //Implementing the final state of the "Mealy-esqe" machine... I am still surprised as to why the machine even stays in this state... 
+		                                                           //common sense tells that the cpu will execute the next line and not stay in this place... eventually encountering the while loop and moving on... 
+		                                                           //but it stays stuck... Interesting behaviour... maybe the cpu is idle while something is running in the background and only wakes up after an interrupt or something...
 		  goto unstuck;
 	  }
 
@@ -134,12 +136,12 @@ unstuck:
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if ((now - lastToggleMs) >= Delay) {
+	  if ((now - lastToggleMs) >= Delay) {                            //Here lies the nonblocking tick based delay logic
 	    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 	    lastToggleMs = now;
 	  }
 
-	  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);           //Didn't use this because it blocked input... that strays away from the behaviour we want to immitate
 	  //HAL_Delay(Delay);
 	  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 	  //HAL_Delay(Delay);
